@@ -3,13 +3,15 @@ import feedparser
 import json
 import re
 import logging
+from datetime import date
 
-url = "https://news.yahoo.com/rss"
+# url = "https://news.yahoo.com/rss"
 # url1 = "https://news.google.com/rss"
 # url2 = "https://www.theguardian.com/world/rss"
 
 logging.basicConfig(format=u'%(levelname)-8s [%(asctime)s] %(message)s', 
-                    level=logging.DEBUG, filename=u'parser.log')
+                    level=logging.DEBUG,
+                    handlers=[logging.FileHandler("parser.log", "a", encoding="utf-8")])
 
 
 def getEntries(url, json, verbose, limit):
@@ -23,6 +25,7 @@ def getEntries(url, json, verbose, limit):
     for item in (channel.entries):
 
         if (limit > 0):
+            cacheNews(item)
             loggingItems(item)
 
             if (json):
@@ -36,6 +39,16 @@ def getEntries(url, json, verbose, limit):
                 print("Links:", "\n[1]: ", item.link, "(link)\n[2]: ", 
                 item.media_content[0]['url'], '\n')
         limit -= 1
+
+
+def cacheNews(item):
+    today = date.today()
+    d1 = today.strftime("%Y-%m-%d")
+    with open('cache_news.txt', 'a', encoding="utf-8") as f:
+        f.write(d1 + '\n' +
+                "Title: " + item.title + '\n' + 
+                "Date: " + item.published + '\n' +
+                "Description: " + getDescription(item.description) + '\n')
 
 
 def getDescription(item):
@@ -52,7 +65,7 @@ def loggingItems(item):
     logging.debug("Title: " + str(item.title))
     logging.debug("Date: " + str(item.published))
     logging.debug("Link: " + str(item.link) + '\n')
-    logging.debug("Description: ", getDescription(item.description), '\n')
+    logging.debug("Description: " + getDescription(item.description) + '\n')
     logging.debug("Links:"+"\n[1]: " + str(item.link) +
                 "(link)\n[2]: " + str(item.media_content[0]['url'])+'\n')
 
@@ -66,4 +79,4 @@ def getJSON(item):
         'Description: ': getDescription(item.description)
     })
 
-getEntries(url, False, False, 2)
+#getEntries(url, False, False, 2)

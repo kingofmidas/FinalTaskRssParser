@@ -1,31 +1,95 @@
-import argparse
-import iter1
-import iter3
-
-parser = argparse.ArgumentParser(description='Pure Python command-line RSS reader')
-
-parser.add_argument('source', action='store', help='RSS URL')
-parser.add_argument('--version', action='store_true', help='Print version info')
-parser.add_argument('--json', action='store_true', help='Print result as JSON in stdout')
-parser.add_argument('--verbose', action='store_true', help='Outputs verbose status messages')
-parser.add_argument('--limit', action='store', help='Limit news topics if this parameter provided')
-parser.add_argument('--date', action='store', help='Print news from the specified day')
-
-args = parser.parse_args()
+from bs4 import BeautifulSoup
+import feedparser
+import json
+import re
+import logging
+from datetime import date
 
 
-if (args.version):
-    version = 1.0
-    print(version)
+# url = "https://news.yahoo.com/rss"
+# url1 = "https://news.google.com/rss"
+# url2 = "https://www.theguardian.com/world/rss"
 
-elif(args.verbose):
-    iter1.printLogs()
 
-elif(args.date):
-    iter3.getCache(args.date)
+logging.basicConfig(format=u'%(levelname)-8s [%(asctime)s] %(message)s', 
+                    level=logging.DEBUG,
+                    handlers=[logging.FileHandler("parser.log", "a", encoding="utf-8")])
 
-else:
-    if not(args.limit):
-        args.limit = 0
-    iter1.getEntries(args.source, args.json, args.verbose, int(args.limit))
+
+def getEntries(url, json, verbose, limit, pdf_path):
+
+    channel = feedparser.parse(url)
+    print("Feed: ", channel.feed.title, '\n')
+
+    limit = limit or len(channel.entries)
+
+    for index, item in enumerate(channel.entries):
+
+        if (limit > 0):
+            cacheNews(item)
+            loggingItems(item)
+
+            if (json):
+                print(getJSON(item))
+
+            else:
+                print("Title: ", item.title)
+                print("Date: ", item.published)
+                print("Link: ", item.link, '\n')
+                print("Description: ", getDescription(item.description), '\n')
+                print("Links:", "\n[1]: ", item.link, "(link)\n[2]: ",
+                checkMediaContent(item), '\n')
+        else:
+            break
+        limit -= 1
+
+
+
+def checkMediaContent(item):
+    media_content = '\n'
+    if(item.has_key('media_content')):
+        media_content = '\n' + item.media_content[0]['url'] + '\n'
+    return media_content
+
+
+def cacheNews(item):
+    today = date.today()
+    d1 = today.strftime("%Y-%m-%d")
+
+    with open('cache_news.txt', 'a', encoding="utf-8") as f:
+        f.write(d1 + '\n' +
+                "Title: " + item.title + '\n' +
+                "Link: " + item.link + '\n' +
+                "Description: " + getDescription(item.description) + 
+                checkMediaContent(item) + '\n')
+
+
+def loggingItems(item):
+    logging.debug("Title: " + str(item.title))
+    logging.debug("Date: " + str(item.published))
+    logging.debug("Link: " + str(item.link) + '\n')
+    logging.debug("Description: " + getDescription(item.description) + '\n')
+    logging.debug("Links:"+"\n[1]: " + str(item.link) +
+                "(link)\n[2]: " + str(checkMediaContent(item))+'\n')
+
+
+def getJSON(item):
+    return json.dumps({
+        'Title: ': item.title,
+        'Date: ': item.published,
+        'Link: ': item.link,
+        'Description: ': getDescription(item.description)
+    })
+
+
+def getDescription(item):
+    return BeautifulSoup(item, features="html.parser").getText()
+
+
+def printLogs():
+    with open('parser.log', 'r') as f:
+        for line in f:
+            print(line)
+
+
 

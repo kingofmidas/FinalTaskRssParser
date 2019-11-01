@@ -16,10 +16,10 @@ def getCache(argDate):
         if(line == argDate):
             count += 1
             print(lines[i+1], '\n', lines[i+2], '\n', lines[i+3])
-        i = i + 4
+        i = i + 5
         
-    if (count == 0):
-        raise NotFound
+    # if (count == 0):
+    #     raise NotFound
 
     f.close()
 

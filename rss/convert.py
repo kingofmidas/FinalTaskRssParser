@@ -5,6 +5,8 @@ import os
 from bs4 import BeautifulSoup
 import dominate
 from dominate.tags import *
+import pdfkit
+import webbrowser
 
 
 def getDescription(item):
@@ -18,15 +20,18 @@ def checkMediaContent(item):
     return media_content    
 
 
-def getHTML(url, html_path, limit):
+def makeConvertion(url, html_path, pdf_path, limit):
+
     channel = feedparser.parse(url)
-    doc = dominate.document(title='HTML document')
+    doc = dominate.document(title="HTML document")
+
     index = 0
 
     while (index < limit):
         item = channel.entries[index]
 
         media = checkMediaContent(item)
+        
         rand = random.randint(1, 120)
         if not os.path.exists('images/'):
             os.makedirs('images/')
@@ -39,13 +44,24 @@ def getHTML(url, html_path, limit):
                 p("Date: " + item.published)
                 img(src=os.path.abspath(filename_))
                 p("Description: " + getDescription(item.description))
-
         index += 1
 
-    if not os.path.exists(html_path):
-        os.makedirs(html_path)
-    html_path = html_path + str(rand) + '.html'
-    with open(html_path, 'w') as f:
-        f.write(str(doc))
+    if(html_path):
+        with open('test.css') as file:
+            css = file.read()
 
-    return html_path
+        with doc.head:
+            style(css)
+
+        if not os.path.exists(html_path):
+            os.makedirs(html_path)
+        html_file = html_path + str(rand) + '.html'
+        with open(html_file, 'w') as f:
+            f.write(str(doc))
+        webbrowser.open(html_file, new=2)
+
+    elif(pdf_path):
+        if not os.path.exists(pdf_path):
+            os.makedirs(pdf_path)
+        pdf_file = pdf_path + str(rand) + '.pdf'
+        pdfkit.from_string(str(doc), pdf_file)

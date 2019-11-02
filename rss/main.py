@@ -1,8 +1,7 @@
 import argparse
 import rss_parser
 import get_cache
-import tohtml
-import topdf
+import convert
 
 parser = argparse.ArgumentParser(description='Pure Python command-line RSS reader')
 
@@ -29,15 +28,16 @@ elif(args.verbose):
 elif(args.date):
     get_cache.getCache(args.date)
 
-elif(args.tohtml):
+elif(args.tohtml or args.topdf):
+    
+    if(args.tohtml):
+        args.topdf = False
+    elif(args.topdf):
+        args.tohtml = False
     if not(args.limit):
         args.limit = 0
-    tohtml.getHTML(args.source, args.tohtml, int(args.limit))
 
-elif(args.topdf):
-    if not(args.limit):
-        args.limit = 0
-    topdf.getPDF(args.source, args.topdf, int(args.limit))
+    convert.makeConvertion(args.source, args.tohtml, args.topdf, int(args.limit))
 
 else:
     if not(args.limit):

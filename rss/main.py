@@ -3,6 +3,7 @@ import rss_parser
 import get_cache
 import convert
 
+
 parser = argparse.ArgumentParser(description='Pure Python command-line RSS reader')
 
 parser.add_argument('source', action='store', help='RSS URL')
@@ -14,12 +15,11 @@ parser.add_argument('--date', action='store', help='Print news from the specifie
 parser.add_argument('--tohtml', action='store', help='Convert news in html format')
 parser.add_argument('--topdf', action='store', help='Convert news in pdf format')
 
-
 args = parser.parse_args()
 
 
 if (args.version):
-    version = 1.0
+    version = 4.1
     print(version)
 
 elif(args.verbose):
@@ -29,7 +29,7 @@ elif(args.date):
     get_cache.getCache(args.date)
 
 elif(args.tohtml or args.topdf):
-    
+
     if(args.tohtml):
         args.topdf = False
     elif(args.topdf):
@@ -45,3 +45,8 @@ else:
 
     rss_parser.getEntries(args.source, args.json, args.verbose, int(args.limit))
 
+
+# fast paste in argument
+# source = "https://news.yahoo.com/rss"
+# source1 = "https://news.google.com/rss"
+# source2 = "https://www.theguardian.com/world/rss"

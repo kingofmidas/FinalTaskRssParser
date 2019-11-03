@@ -11,42 +11,56 @@ logging.basicConfig(format=u'%(levelname)-8s [%(asctime)s] %(message)s',
                     handlers=[logging.FileHandler("parser.log", "a", encoding="utf-8")])
 
 
-# function for parsing news
-def getEntries(url, json, verbose, limit):
+# return object of feedparser
+def setParser(source):
+    channel = feedparser.parse(source)
+    print("Feed: ", channel.feed.title, '\n')
+    return channel
+
+
+# print news
+def printNews(source, isJson, limit):
     '''
-    1. set object of feedparser library
+    1. set objects of feedparser
     2. set news limit
     3. on each iteration of loop 
         3.1 cache news
         3.2 log news
         3.3 print news in sdtout or json format
     '''
-    channel = feedparser.parse(url)
-    print("Feed: ", channel.feed.title, '\n')
+    channel = setParser(source)
+    limit = limit or len(entries)
 
-    limit = limit or len(channel.entries)
-
-    for item in channel.entries:
-
-        if (limit > 0):
-            cacheNews(item)
-            loggingItems(item)
-
-            if (json):
-                print(getJSON(item))
-
-            else:
-                printNews(item)
-        else:
+    for index, item in enumerate(channel.entries):
+        if (index == limit):
             break
-        limit -= 1
+        cacheNews(item)
+        loggingItems(item)
+        if (isJson):
+            print(getJSON(item))
+        print("Title: ", item.title)
+        print("Date: ", item.published)
+        print("Link: ", item.link, '\n')
+        print("Description: ", getDescription(item.description), '\n')
+        print("Links:", "\n[1]: ", item.link, "(link)\n[2]: ",
+        checkMediaContent(item), '\n')
+
+
+# return news in json format
+def getJSON(source, limit):
+    return json.dumps({
+            'Title: ': item.title,
+            'Date: ': item.published,
+            'Link: ': item.link,
+            'Description: ': getDescription(item.description)
+            })
 
 
 # checks if there is media content
 def checkMediaContent(item):
     media_content = ' '
     if('media_content' in item.keys()):
-        media_content = item.media_content[0]['url'] + '\n'
+        media_content = item.media_thumbnail[0]['url'] + '\n'
     return media_content
 
 
@@ -71,29 +85,9 @@ def loggingItems(item):
                 "(link)\n[2]: " + str(checkMediaContent(item))+'\n')
 
 
-# return news in json format
-def getJSON(item):
-    return json.dumps({
-        'Title: ': item.title,
-        'Date: ': item.published,
-        'Link: ': item.link,
-        'Description: ': getDescription(item.description)
-    })
-
-
 # return description without html tags
 def getDescription(item):
     return BeautifulSoup(item, features="html.parser").getText()
-
-
-# print news
-def printNews(item):
-    print("Title: ", item.title)
-    print("Date: ", item.published)
-    print("Link: ", item.link, '\n')
-    print("Description: ", getDescription(item.description), '\n')
-    print("Links:", "\n[1]: ", item.link, "(link)\n[2]: ",
-    checkMediaContent(item), '\n')
 
 
 # pring logs

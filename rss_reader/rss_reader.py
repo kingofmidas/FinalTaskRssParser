@@ -4,7 +4,6 @@ import os
 import feedparser
 import parse_news
 import get_cache
-import converter
 import logger
 import urllib.request
 import random

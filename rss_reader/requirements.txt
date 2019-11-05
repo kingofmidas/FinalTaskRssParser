@@ -1,0 +1,6 @@
+beautifulsoup4==4.8.1
+dominate==2.4.0
+feedparser==5.2.1
+pdfkit==0.6.1
+twine==2.0.0
+urllib3==1.25.6

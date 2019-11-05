@@ -1,31 +1,25 @@
 from setuptools import setup, find_packages
 import os
-from pip._internal.req import parse_requirements
 
 
-with open("README.md", "r") as fh:
+this_directory = os.path.abspath(os.path.dirname(__file__))
+with open(path.join(this_directory, 'README.md'), encoding='utf-8') as fh:
     long_description = fh.read()
-
 
 def get_version():
     basedir = os.path.dirname(__file__)
-    with open(os.path.join(basedir, 'rss/version.py')) as f:
+    with open(os.path.join(basedir, 'rss_reader/version.py')) as f:
         VERSION = None
         exec(f.read())
         return VERSION
     raise RuntimeError('No version info found.')
 
-
-requirements = parse_requirements(os.path.join(os.path.dirname(__file__), 'requirements.txt'))
-
-
 setup(
     name="rss-reader",
     version=get_version(),
     packages=find_packages(),
-    #scripts=[],
-    install_requires=[str(requirement.req) for requirement in requriements],
-    author="Ilya Khonenko",
+    install_requires=['beautifulsoup4','dominate','feedparser','pdfkit','twine','urllib3'],
+    author="ilya khonenko",
     author_email="honenkoi@gmail.com",
     # url="https://github.com"
     description="This is rss-reader",
@@ -46,4 +40,3 @@ setup(
 #(for real)
 #python -m twine upload dist/*      (https://pypi.org by default)
 #pip install [your-package]
-

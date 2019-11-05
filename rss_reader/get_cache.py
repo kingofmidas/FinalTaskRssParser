@@ -5,8 +5,7 @@ import logger
 # print cached news
 def getCache(arg_date):
     '''
-    1. open and read file with news
-    2. print news if their date is equal to the date in argument
+    1. create file with cache news and write it
     3. or raise error
     '''
     try:

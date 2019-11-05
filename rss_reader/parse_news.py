@@ -1,8 +1,6 @@
 from bs4 import BeautifulSoup
 import feedparser
-from datetime import date
-import sys
-
+import json
 
 # check if there is media content
 def checkMediaContent(item):
@@ -17,3 +15,14 @@ def checkMediaContent(item):
 # return description without html tags
 def getDescription(item):
     return BeautifulSoup(item, features="html.parser").getText()
+
+
+# print news in json format
+def intoJson(item):
+    return json.dumps({
+        'Title: ': item.title,
+        'Date: ': item.published,
+        'Link: ': item.link,
+        'Description: ': getDescription(item.description),
+        'Media_link': checkMediaContent(item)
+        })

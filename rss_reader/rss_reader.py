@@ -1,16 +1,17 @@
 import argparse
-import version
-import os
 import feedparser
-import parse_news
-import get_cache
-import logger
-import urllib.request
+import os
+import pdfkit
 import random
 import dominate
 from dominate.tags import *
-import json
 from datetime import date
+
+import parse_news
+import get_cache
+import logger
+import version
+import converter
 
 
 arguments = argparse.ArgumentParser(description='Pure Python command-line RSS reader')
@@ -26,16 +27,15 @@ arguments.add_argument('--topdf', action='store', help='Convert news in pdf form
 
 args = arguments.parse_args()
 
-if not (args.limit):
-    args.limit = 0
-
 try:
     # set object of feedparser library
     channel = feedparser.parse(args.source)
     print("Feed: ", channel.feed.title, '\n')
-
+    
     # if no limit - take all news in channel
-    limit = int(args.limit) or len(channel.entries)
+    if not (args.limit):
+        args.limit = len(channel.entries)
+    limit = int(args.limit)
 
     if (args.version):
         print(version.VERSION)
@@ -55,11 +55,6 @@ try:
 
     elif (args.tohtml or args.topdf):
 
-        if (args.tohtml):
-            args.topdf = False
-        elif (args.topdf):
-            args.tohtml = False
-
         # set object of html converter library
         doc = dominate.document(title="HTML document")
         random_name = random.randint(1, 120)
@@ -67,49 +62,26 @@ try:
         for index, item in enumerate(channel.entries):
             if (index == limit):
                 break
-
+            
             media_content = parse_news.checkMediaContent(item)
-
-            if (media_content):
-                # if there is media content(images) save it in folder
-                if not os.path.exists('images/'):
-                    os.makedirs('images/')
-                filename_ = 'images/' + str(random.randint(1, 120)) + '.jpg'
-                urllib.request.urlretrieve(media_content, filename_)
-
-            # create html tags
+          
+            # create html structure
             with doc:
                 with div():
                     h2(item.title)
                     p("Date: " + item.published)
                     if (media_content):
-                        img(src=os.path.abspath(filename_))
+                        img(src=media_content)
                     p("Description: " + parse_news.getDescription(item.description))
 
         if (args.tohtml):
-            # uncomment if you want html with styles
-            # with open('style.css') as file:
-            #     css_file = file.read()
-            # with doc.head:
-            #     style(css_file)
-
-            # create folder with html file and write tags in html
-            if not os.path.exists(html_path):
-                os.makedirs(html_path)
-            html_file = html_path + str(random_name) + '.html'
-
-            with open(html_file, 'w') as f:
-                f.write(str(doc))
+           converter.intoHTML(args.tohtml, doc, random_name)
 
         elif (args.topdf):
-            # create folder with pdf file and convert html into pdf
-            if not os.path.exists(pdf_path):
-                os.makedirs(pdf_path)
-
-            pdf_file = pdf_path + str(random_name) + '.pdf'
-            pdfkit.from_string(str(doc), pdf_file)
+            converter.intoPDF(args.topdf, doc, random_name)
 
     else:
+
         for index, item in enumerate(channel.entries):
             if (index == limit):
                 break
@@ -125,7 +97,7 @@ try:
                 f.write("Title: " + item.title + '\n' +
                         "Link: " + item.link + '\n' +
                         "Description: " + parse_news.getDescription(item.description) + '\n')
-            
+     
             # log news
             logger.logging.debug("Title: " + str(item.title))
             logger.logging.debug("Date: " + str(item.published))
@@ -134,15 +106,8 @@ try:
             logger.logging.debug("Links:"+"\n[1]: " + str(item.link) +
                         "(link)\n[2]: " + str(parse_news.checkMediaContent(item)))
 
-            # print news in json format
             if (args.json):
-                print(json.dumps({
-                    'Title: ': item.title,
-                    'Date: ': item.published,
-                    'Link: ': item.link,
-                    'Description: ': parse_news.getDescription(item.description),
-                    'Media_link': parse_news.checkMediaContent(item)
-                    }))
+                print(parse_news.intoJson(item))
 
             # print news
             print("Title: ", item.title)

@@ -1,5 +1,3 @@
 __pycache__/
 .vscode/
-test.py
-rss/__pycache__/
-rss/.vscode/
+.idea/

@@ -23,3 +23,6 @@ div p {
 body {
     background-color: black;
 }
+div img {
+    width: 150px;
+}

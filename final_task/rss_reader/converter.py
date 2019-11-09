@@ -6,6 +6,7 @@ from datetime import datetime
 import news_parser
 import logger
 
+
 def createHtmlStructure(channel, limit, html_document, html_path, pdf_path):
     '''
     1. in loop create html structure
@@ -32,7 +33,6 @@ def createHtmlStructure(channel, limit, html_document, html_path, pdf_path):
         intoPDF(html_document, pdf_path)
 
 
-
 def intoHTML(html_document, html_path):
     '''
     1. create folder with html file
@@ -46,7 +46,6 @@ def intoHTML(html_document, html_path):
     with open(html_file, 'w') as f:
         f.write(str(html_document))
         logger.logging.info("Successfull converting into html")
-
 
 
 def intoPDF(doc, pdf_path):

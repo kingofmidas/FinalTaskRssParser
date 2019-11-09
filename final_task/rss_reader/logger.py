@@ -2,6 +2,7 @@ import logging
 import news_parser
 import sys
 
+
 # Set basic configs for logging
 stdoutHandler = logging.StreamHandler(sys.stdout)
 fileHandler = logging.FileHandler("parser.log", "a", encoding="utf-8")

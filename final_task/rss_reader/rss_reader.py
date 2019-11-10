@@ -22,7 +22,7 @@ def main(channel, limit):
 
     if (args.tohtml or args.topdf):
         html_document = dominate.document(title="HTML document")
-        converter.createHtmlStructure(channel, limit, html_document, args.tohtml, args.topdf)
+        converter.createHtmlStructure(args.source, channel, limit, html_document, args.tohtml, args.topdf)
     else:
         for index, item in enumerate(channel.entries):
             if (index == limit):
@@ -35,9 +35,13 @@ def main(channel, limit):
                 print("\nTitle: ", html.unescape(item.title))
                 print("Date: ", item.published)
                 print("Link: ", item.link, '\n')
-                print("Description: ", news_parser.getDescription(item.description), '\n')
-                print("Links:", "\n[1]: ", item.link, "(link)\n[2]: ",
-                      news_parser.checkMediaContent(item), '\n')
+                description = news_parser.getDescription(item.description)
+                if(description):
+                    print("Description: ", description, '\n')
+                print("Links:", "\n[1]: ", item.link, "(link)")
+                media_content = news_parser.checkMediaContent(item)
+                if(media_content):
+                    print("\n[2]: ", media_content, '\n')
 
 
 def checkArguments():
@@ -48,21 +52,17 @@ def checkArguments():
         return True
 
 
+class checkConnectionException(Exception):
+    pass
+
+
 def checkConnection(source):
     '''Check connection to server'''
     source = Request(source)
     try:
         response = urlopen(source)
-    except HTTPError as e:
-        print('The server couldn\'t fulfill the request.')
-        print('Error code: ', e.code)
-        logger.logging.error("HTTPError: " + str(e))
-        sys.exit()
-    except URLError as e:
-        print('Failed to reach a server.')
-        print('Reason: ', e.reason)
-        logger.logging.error("URLError: " + str(e))
-        sys.exit()
+    except Exception as e:
+        raise checkConnectionException(e)
     else:
         logger.logging.info('Website is working')
 
@@ -78,15 +78,15 @@ if __name__ == "__main__":
         get_cache.convertCache(args.source, args.date, args.limit, args.tohtml, args.topdf)
     else:
         if (checkArguments()):
-            checkConnection(args.source)
-            # set object of feedparser library
-            channel = feedparser.parse(args.source)
-            print("Feed: ", channel.feed.title, '\n')
-            limit = args.limit or len(channel.entries)
+            try:
+                checkConnection(args.source)
 
-            main(channel, limit)
+                # set object of feedparser library
+                channel = feedparser.parse(args.source)
+                print("Feed: ", channel.feed.title, '\n')
+                limit = args.limit or len(channel.entries)
 
-# for faste paste
-# python rss_reader.py https://news.yahoo.com/rss
-# python rss_reader.py https://news.google.com/rss
-# python rss_reader.py https://www.theguardian.com/world/rss
+                main(channel, limit)
+            except checkConnectionException as e:
+                logger.logging.error("Connection error" + str(e))
+                print("Connection error: ", e)

@@ -1,3 +1,5 @@
 __pycache__/
 .vscode/
 .idea/
+final_task/rss_reader/parser.log
+final_task/rss_reader/newsdatabase.db

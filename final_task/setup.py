@@ -12,10 +12,10 @@ setup(
     name="rss-reader",
     version=get_version(),
     packages=find_packages(),
-    install_requires=['beautifulsoup4','dominate','feedparser','pdfkit','twine','urllib3'],
+    install_requires=['beautifulsoup4','dominate','feedparser', 'urllib3', 'xhtml2pdf'],
     author="ilya khonenko",
     author_email="honenkoi@gmail.com",
-    # url="https://github.com"
+    url="https://github.com/kingofmidas"
     description="This is rss-reader",
     long_description = long_description,
     long_description_content_type="text/markdown",
@@ -26,11 +26,3 @@ setup(
     keywords="rss reader",
     python_requires='>=3.8',
 )
-
-#python setup.py sdist bdist_wheel
-#(for testing)
-#python -m twine upload --repository-url https://test.pypi.org/legacy/ dist/*
-#python -m pip install --index-url https://test.pypi.org/simple/ --no-deps ilyakhonenko (in venv)
-#(for real)
-#python -m twine upload dist/*      (https://pypi.org by default)
-#pip install [your-package]

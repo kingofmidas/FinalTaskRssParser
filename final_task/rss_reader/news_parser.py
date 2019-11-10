@@ -1,11 +1,11 @@
 from bs4 import BeautifulSoup
 import json
 import os
-import urllib.request
 from datetime import datetime
 import time
 import sqlite3
 import  html
+import requests
 
 
 def checkMediaContent(item):
@@ -25,13 +25,16 @@ def getDescription(item):
 
 def intoJson(item):
     '''print news in json format'''
-    return json.dumps({
+    json_news = {
         'Title: ': html.unescape(item.title),
         'Date: ': item.published,
-        'Link: ': item.link,
-        'Description: ': getDescription(item.description),
-        'Media_link': checkMediaContent(item)
-        })
+        'Link: ': item.link
+        }
+    description = getDescription(item.description)
+    media_link = checkMediaContent(item)
+    if(description): json_news['Description: '] = description
+    if(media_link): json_news['Media link: '] = media_link
+    return json.dumps(json_news)
 
 
 def cacheNews(url, channel):
@@ -45,11 +48,11 @@ def cacheNews(url, channel):
 
     try:
         cursor.execute("""CREATE TABLE news
-                        (title text, link text, image text, 
+                        (title text, link text, image BLOB, 
                         description text, pub_date_stamp real,
                         UNIQUE (title, link, pub_date_stamp))
                         """)
-    except:
+    except Exception:
         print("Table already exists")
 
     insertNewsIntoTable(channel, cursor)
@@ -66,19 +69,17 @@ def insertNewsIntoTable(channel, cursor):
     '''
     for index, item in enumerate(channel.entries):
 
-        descr = getDescription(item.description)
+        description = getDescription(item.description)
 
         pub_date = getPublishedDate(item.published)
         pub_date_stamp = time.mktime(datetime.strptime(pub_date, '%d %m %Y %H:%M:%S').timetuple())
 
-        if not os.path.exists('cache_images/'):
-            os.makedirs('cache_images/')
-        time_name = datetime.strftime(datetime.now(), "%H%M%S") + str(index)
-        image_file_name = 'cache_images/' + time_name + '.jpg'
-        if (checkMediaContent(item)):
-            urllib.request.urlretrieve(checkMediaContent(item), image_file_name)
+        media_content = checkMediaContent(item)
+        if (media_content):
+            response = requests.get(media_content)
+            image = sqlite3.Binary(response.content)
 
-        row = (html.unescape(item.title), item.link, descr, os.path.abspath(image_file_name), pub_date_stamp)
+        row = (html.unescape(item.title), item.link, image, description, pub_date_stamp)
         try:
             cursor.execute("INSERT INTO news VALUES (?,?,?,?,?)", row)
         except sqlite3.IntegrityError:

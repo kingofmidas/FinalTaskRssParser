@@ -3,9 +3,12 @@ from dominate.tags import div, h2, img, p, link
 import sqlite3
 from datetime import datetime
 import time
+import os
+import base64
 
 import logger
 import converter
+import rss_reader
 
 
 def dateToStamp(arg_date):
@@ -28,7 +31,7 @@ def convertCache(url, arg_date, limit, html_path, pdf_path):
     cursor = conn.cursor()
 
     try:
-        cursor.execute("SELECT title, link, description, image FROM news WHERE pub_date_stamp >= ? and pub_date_stamp < ? ",
+        cursor.execute("SELECT title, link, image, description FROM news WHERE pub_date_stamp >= ? and pub_date_stamp < ? ",
                     (dateToStamp(arg_date), dateToStamp(int(arg_date) + 1)))
     except sqlite3.OperationalError as e:
         print("No such table")
@@ -42,22 +45,26 @@ def convertCache(url, arg_date, limit, html_path, pdf_path):
                 break
             print("\nTitle: ", row[0])
             print("Link: ", row[1], '\n')
-            print("Description: ", row[2], '\n')
+            if (row[3]):
+                print("Description: ", row[3], '\n')
     else:
-        createHtmlStructure(records, limit, html_path, pdf_path)
+        createHtmlStructure(records, limit, html_path, pdf_path, url)
 
         cursor.close()
         conn.close()
 
 
-def createHtmlStructure(records, limit, html_path, pdf_path):
+def createHtmlStructure(records, limit, html_path, pdf_path, url):
     '''
     1. in loop create html structure
     2. create html document or convert html structure into pdf
     '''
     html_document = dominate.document(title="HTML document")
-    with html_document.head:
-       link(rel='stylesheet', href='style.css')
+    #uncomment if u want html with styles
+    # with html_document.head:
+    #     styles = os.path.abspath('style.css')
+    #     link(rel='stylesheet', href=styles)
+
     for index, row in enumerate(records):
         if(limit and index==limit):
             break
@@ -66,9 +73,11 @@ def createHtmlStructure(records, limit, html_path, pdf_path):
                 h2("Title: " + row[0])
                 p("Link: " + row[1])
                 if (row[2]):
-                    img(src=row[2])
-                p("Description: " + row[3])
+                    img(src="data:image/jpg;base64," + base64.b64encode(row[2]).decode('ascii'))
+                if (row[3]):
+                    p("Description: " + row[3])
+
     if (html_path):
-        converter.intoHTML(html_document, html_path)
+        converter.intoHTML(html_document, html_path, url)
     elif (pdf_path):
-        converter.intoPDF(html_document, pdf_path)
+        converter.intoPDF(html_document, pdf_path, url)

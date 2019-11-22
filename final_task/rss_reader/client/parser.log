@@ -1,0 +1,67 @@
+DEBUG    [2019-11-19 12:17:24,844] Starting new HTTP connection (1): 127.0.0.1:5000
+DEBUG    [2019-11-19 12:17:24,860] http://127.0.0.1:5000 "GET /version/ HTTP/1.1" 200 3
+DEBUG    [2019-11-19 12:17:24,875] Starting new HTTP connection (1): 127.0.0.1:5000
+DEBUG    [2019-11-19 12:17:24,886] http://127.0.0.1:5000 "GET /verbose/ HTTP/1.1" 200 0
+INFO     [2019-11-19 12:17:25,297] Website is working
+DEBUG    [2019-11-19 12:17:25,305] Starting new HTTP connection (1): 127.0.0.1:5000
+DEBUG    [2019-11-19 12:17:32,106] http://127.0.0.1:5000 "GET /print/ HTTP/1.1" 200 None
+DEBUG    [2019-11-19 12:33:21,760] Starting new HTTP connection (1): 127.0.0.1:5000
+DEBUG    [2019-11-19 12:34:28,544] Starting new HTTP connection (1): 127.0.0.1:5000
+ERROR    [2019-11-19 12:34:29,548] ConnectionError: HTTPConnectionPool(host='127.0.0.1', port=5000): Max retries exceeded with url: /version/ (Caused by NewConnectionError('<urllib3.connection.HTTPConnection object at 0x0381DCE8>: Failed to establish a new connection: [WinError 10061] Подключение не установлено, т.к. конечный компьютер отверг запрос на подключение'))
+DEBUG    [2019-11-19 12:35:02,649] Starting new HTTP connection (1): 127.0.0.1:5000
+ERROR    [2019-11-19 12:35:03,656] ConnectionError: HTTPConnectionPool(host='127.0.0.1', port=5000): Max retries exceeded with url: /version/ (Caused by NewConnectionError('<urllib3.connection.HTTPConnection object at 0x039CDCE8>: Failed to establish a new connection: [WinError 10061] Подключение не установлено, т.к. конечный компьютер отверг запрос на подключение'))
+DEBUG    [2019-11-19 12:35:12,507] Starting new HTTP connection (1): 127.0.0.1:5000
+ERROR    [2019-11-19 12:35:13,511] ConnectionError: HTTPConnectionPool(host='127.0.0.1', port=5000): Max retries exceeded with url: /version/ (Caused by NewConnectionError('<urllib3.connection.HTTPConnection object at 0x0360DCE8>: Failed to establish a new connection: [WinError 10061] Подключение не установлено, т.к. конечный компьютер отверг запрос на подключение'))
+DEBUG    [2019-11-19 12:35:25,576] Starting new HTTP connection (1): 127.0.0.1:5000
+DEBUG    [2019-11-19 12:35:25,587] http://127.0.0.1:5000 "GET /version/ HTTP/1.1" 200 3
+DEBUG    [2019-11-21 02:50:36,539] Starting new HTTP connection (1): 127.0.0.1:5000
+DEBUG    [2019-11-21 02:50:36,574] http://127.0.0.1:5000 "GET /version/ HTTP/1.1" 200 3
+ERROR    [2019-11-21 02:50:58,359] Connection error<urlopen error [WinError 10060] Попытка установить соединение была безуспешной, т.к. от другого компьютера за требуемое время не получен нужный отклик, или было разорвано уже установленное соединение из-за неверного отклика уже подключенного компьютера>
+DEBUG    [2019-11-22 02:15:05,272] Starting new HTTP connection (1): 127.0.0.1:5000
+ERROR    [2019-11-22 02:15:05,366] ConnectionError: ('Connection aborted.', RemoteDisconnected('Remote end closed connection without response'))
+DEBUG    [2019-11-22 02:15:27,113] Starting new HTTP connection (1): 127.0.0.1:5000
+ERROR    [2019-11-22 02:15:27,125] ConnectionError: ('Connection aborted.', RemoteDisconnected('Remote end closed connection without response'))
+DEBUG    [2019-11-22 03:00:39,414] Starting new HTTP connection (1): 127.0.0.1:5000
+DEBUG    [2019-11-22 03:00:39,472] http://127.0.0.1:5000 "GET /version/ HTTP/1.1" 200 3
+INFO     [2019-11-22 03:00:41,260] Website is working
+DEBUG    [2019-11-22 03:00:41,267] Starting new HTTP connection (1): 127.0.0.1:5000
+DEBUG    [2019-11-22 03:00:44,885] http://127.0.0.1:5000 "GET /print/ HTTP/1.1" 200 777
+DEBUG    [2019-11-22 03:13:33,562] Starting new HTTP connection (1): 127.0.0.1:5000
+DEBUG    [2019-11-22 03:13:33,672] http://127.0.0.1:5000 "GET /version/ HTTP/1.1" 500 None
+INFO     [2019-11-22 03:13:35,075] Website is working
+DEBUG    [2019-11-22 03:13:35,082] Starting new HTTP connection (1): 127.0.0.1:5000
+DEBUG    [2019-11-22 03:13:35,152] http://127.0.0.1:5000 "GET /print/ HTTP/1.1" 500 None
+DEBUG    [2019-11-22 03:23:23,729] Starting new HTTP connection (1): 127.0.0.1:5000
+DEBUG    [2019-11-22 03:23:23,740] http://127.0.0.1:5000 "GET /version/ HTTP/1.1" 200 3
+INFO     [2019-11-22 03:23:24,220] Website is working
+DEBUG    [2019-11-22 03:23:24,227] Starting new HTTP connection (1): 127.0.0.1:5000
+DEBUG    [2019-11-22 03:23:25,694] http://127.0.0.1:5000 "GET /print/ HTTP/1.1" 200 800
+DEBUG    [2019-11-22 03:23:48,151] Starting new HTTP connection (1): 127.0.0.1:5000
+DEBUG    [2019-11-22 03:23:48,162] http://127.0.0.1:5000 "GET /version/ HTTP/1.1" 200 3
+DEBUG    [2019-11-22 03:23:48,190] Starting new HTTP connection (1): 127.0.0.1:5000
+DEBUG    [2019-11-22 03:23:48,246] http://127.0.0.1:5000 "GET /getcache/ HTTP/1.1" 500 None
+DEBUG    [2019-11-22 03:54:12,252] Starting new HTTP connection (1): 127.0.0.1:5000
+DEBUG    [2019-11-22 03:54:12,441] http://127.0.0.1:5000 "GET /version/ HTTP/1.1" 200 3
+DEBUG    [2019-11-22 03:54:12,725] Starting new HTTP connection (1): 127.0.0.1:5000
+DEBUG    [2019-11-22 03:54:13,055] http://127.0.0.1:5000 "GET /getcache/ HTTP/1.1" 200 0
+DEBUG    [2019-11-22 03:54:21,601] Starting new HTTP connection (1): 127.0.0.1:5000
+DEBUG    [2019-11-22 03:54:21,614] http://127.0.0.1:5000 "GET /version/ HTTP/1.1" 200 3
+INFO     [2019-11-22 03:54:22,684] Website is working
+DEBUG    [2019-11-22 03:54:22,692] Starting new HTTP connection (1): 127.0.0.1:5000
+DEBUG    [2019-11-22 03:54:34,691] http://127.0.0.1:5000 "GET /print/ HTTP/1.1" 200 None
+DEBUG    [2019-11-22 03:54:50,161] Starting new HTTP connection (1): 127.0.0.1:5000
+DEBUG    [2019-11-22 03:54:50,179] http://127.0.0.1:5000 "GET /version/ HTTP/1.1" 200 3
+DEBUG    [2019-11-22 03:54:50,223] Starting new HTTP connection (1): 127.0.0.1:5000
+DEBUG    [2019-11-22 03:54:50,361] http://127.0.0.1:5000 "GET /getcache/ HTTP/1.1" 200 0
+DEBUG    [2019-11-22 03:55:00,515] Starting new HTTP connection (1): 127.0.0.1:5000
+DEBUG    [2019-11-22 03:55:00,526] http://127.0.0.1:5000 "GET /version/ HTTP/1.1" 200 3
+DEBUG    [2019-11-22 03:55:00,560] Starting new HTTP connection (1): 127.0.0.1:5000
+DEBUG    [2019-11-22 03:55:00,596] http://127.0.0.1:5000 "GET /getcache/ HTTP/1.1" 200 None
+DEBUG    [2019-11-22 03:55:04,853] Starting new HTTP connection (1): 127.0.0.1:5000
+DEBUG    [2019-11-22 03:55:04,875] http://127.0.0.1:5000 "GET /version/ HTTP/1.1" 200 3
+DEBUG    [2019-11-22 03:55:04,913] Starting new HTTP connection (1): 127.0.0.1:5000
+DEBUG    [2019-11-22 03:55:04,988] http://127.0.0.1:5000 "GET /getcache/ HTTP/1.1" 200 None
+DEBUG    [2019-11-22 03:57:42,465] Starting new HTTP connection (1): 127.0.0.1:5000
+DEBUG    [2019-11-22 03:57:42,486] http://127.0.0.1:5000 "GET /version/ HTTP/1.1" 200 3
+DEBUG    [2019-11-22 03:57:42,528] Starting new HTTP connection (1): 127.0.0.1:5000
+DEBUG    [2019-11-22 03:57:42,584] http://127.0.0.1:5000 "GET /getcache/ HTTP/1.1" 200 None

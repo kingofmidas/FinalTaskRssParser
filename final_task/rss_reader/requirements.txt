@@ -1,0 +1,9 @@
+xhtml2pdf==0.2.3
+urllib3==1.25.6
+feedparser==5.2.1
+dominate==2.4.0
+beautifulsoup4==4.8.1
+colored==1.4.0
+requests==2.22.0
+psycopg2==2.8.4
+Flask==1.1.1

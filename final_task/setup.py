@@ -12,7 +12,7 @@ setup(
     name="rss-reader",
     version=get_version(),
     packages=find_packages(),
-    install_requires=['beautifulsoup4','dominate','feedparser', 'urllib3', 'xhtml2pdf'],
+    install_requires=['beautifulsoup4','dominate','feedparser', 'urllib3', 'xhtml2pdf', 'colored'],
     author="ilya khonenko",
     author_email="honenkoi@gmail.com",
     url="https://github.com/kingofmidas"

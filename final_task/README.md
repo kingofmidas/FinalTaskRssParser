@@ -51,7 +51,7 @@ pip install rss-reader
 
 ## Data caching
 
-I wrote a program that creates a database for convenient storage of news. The **sqlite3** database (built into python) is perfectly suited for this. Pictures are also stored in the database in binary format.
+I wrote a program that creates a database for convenient storage of news. The **postgresql** database is perfectly suited for this. Pictures are also stored in the database in binary format.
 
 ## Converting
 
@@ -66,4 +66,13 @@ with html_document:
         h2("Title: " + news_title)
         p("Link: " + news_link)
         p("Description: " + news_description)
+```
+
+To convert data to pdf format from html document, I used the **xhtml2pdf** library.
+
+Example:
+```
+from xhtml2pdf import pisa
+
+pdf_file = pisa.CreatePDF(sourceHtmlFile)
 ```

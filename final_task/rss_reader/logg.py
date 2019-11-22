@@ -1,6 +1,7 @@
 import logging
-import news_parser
 import sys
+
+from . import news_parser
 
 
 # Set basic configs for logging
@@ -15,7 +16,7 @@ def makeVerbose():
     '''
     1. print logs in stdout if there is --verbose argument
     '''
-    stderrLogger=logging.StreamHandler()
+    stderrLogger = logging.StreamHandler()
     stderrLogger.setFormatter(logging.Formatter(logging.BASIC_FORMAT))
     logging.getLogger().addHandler(stderrLogger)
 

@@ -1,11 +1,15 @@
+from contextlib import closing
 from bs4 import BeautifulSoup
-import json
-import os
 from datetime import datetime
-import time
-import sqlite3
-import  html
 import requests
+import sqlite3
+import psycopg2
+import json
+import time
+import html
+import os
+
+from . import logg
 
 
 def checkMediaContent(item):
@@ -32,8 +36,10 @@ def intoJson(item):
         }
     description = getDescription(item.description)
     media_link = checkMediaContent(item)
-    if(description): json_news['Description: '] = description
-    if(media_link): json_news['Media link: '] = media_link
+    if(description):
+        json_news['Description: '] = description
+    if(media_link):
+        json_news['Media link: '] = media_link
     return json.dumps(json_news)
 
 
@@ -43,25 +49,22 @@ def cacheNews(url, channel):
     2. create table in database
     3. insert news into table
     '''
-    conn = sqlite3.connect("newsdatabase.db")
-    cursor = conn.cursor()
-
     try:
-        cursor.execute("""CREATE TABLE news
-                        (title text, link text, image BLOB, 
-                        description text, pub_date_stamp real,
-                        UNIQUE (title, link, pub_date_stamp))
-                        """)
-    except Exception:
-        print("Table already exists")
+        with closing(psycopg2.connect(database="postgres",user='postgres',password='rssreader',
+                                    host='db',port='5432')) as con:
+            with con.cursor() as cur:
+                cur.execute("""CREATE TABLE IF NOT EXISTS news
+                                (title text, link text, image bytea,
+                                description text, pub_date_stamp real,
+                                UNIQUE (title, link, pub_date_stamp))
+                                """)
+                insertNewsIntoTable(channel, cur)
+                con.commit()
+    except (Exception, psycopg2.DatabaseError) as e:
+        logg.logging.error(str(e))
 
-    insertNewsIntoTable(channel, cursor)
-    conn.commit()
-    cursor.close()
-    conn.close()
 
-
-def insertNewsIntoTable(channel, cursor):
+def insertNewsIntoTable(channel, con):
     '''
     1. fill table with news
     2. convert date into timestamp
@@ -77,13 +80,13 @@ def insertNewsIntoTable(channel, cursor):
         media_content = checkMediaContent(item)
         if (media_content):
             response = requests.get(media_content)
-            image = sqlite3.Binary(response.content)
+            image = psycopg2.Binary(response.content)
 
         row = (html.unescape(item.title), item.link, image, description, pub_date_stamp)
         try:
-            cursor.execute("INSERT INTO news VALUES (?,?,?,?,?)", row)
-        except sqlite3.IntegrityError:
-            pass
+            con.execute("INSERT INTO news VALUES (%s,%s,%s,%s,%s)", row)
+        except (Exception, psycopg2.DatabaseError) as e:
+            logg.logging.error(str(e))
 
 
 def isEmpty(cursor):
@@ -104,8 +107,8 @@ def getPublishedDate(pub_date):
     '''
     pub_date = ((pub_date).split(' ')[1:5])
 
-    month = {'Jan':'01','Feb':'02','Mar':'03','Apr':'04','May':'05','Jun':'06',
-            'Jul':'07','Aug':'08','Sep':'09','Oct':'10','Nov':'11','Dec':'12'}
+    month = {'Jan': '01', 'Feb': '02', 'Mar': '03', 'Apr': '04', 'May': '05', 'Jun': '06',
+            'Jul': '07', 'Aug': '08', 'Sep': '09', 'Oct': '10', 'Nov': '11', 'Dec': '12'}
 
     pub_date[1] = month[pub_date[1]]
     pub_date = ' '.join(pub_date)

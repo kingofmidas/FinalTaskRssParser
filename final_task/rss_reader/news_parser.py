@@ -1,3 +1,4 @@
+from email.utils import parsedate_to_datetime
 from contextlib import closing
 from bs4 import BeautifulSoup
 from datetime import datetime
@@ -22,9 +23,9 @@ def checkMediaContent(item):
     return media_content
 
 
-def getDescription(item):
+def getDescription(description):
     '''return description without html tags'''
-    return BeautifulSoup(item, features="html.parser").getText()
+    return BeautifulSoup(description, features="html.parser").getText()
 
 
 def intoJson(item):
@@ -43,74 +44,60 @@ def intoJson(item):
     return json.dumps(json_news)
 
 
-def cacheNews(url, channel):
+def cacheNews(channel):
     '''
     1. connect to database
     2. create table in database
     3. insert news into table
     '''
     try:
-        with closing(psycopg2.connect(database="postgres",user='postgres',password='rssreader',
-                                    host='db',port='5432')) as con:
+        with psycopg2.connect(database="postgres",user='postgres',password='rssreader',
+                                    host='localhost',port='5432') as con:
             with con.cursor() as cur:
                 cur.execute("""CREATE TABLE IF NOT EXISTS news
                                 (title text, link text, image bytea,
                                 description text, pub_date_stamp real,
                                 UNIQUE (title, link, pub_date_stamp))
                                 """)
-                insertNewsIntoTable(channel, cur)
+
+                news = insertNewsIntoTable(channel)
+                cur.executemany("INSERT INTO news VALUES (%s,%s,%s,%s,%s) ON CONFLICT DO NOTHING", news)
                 con.commit()
+
+                logg.logging.info("News cached into database")
     except (Exception, psycopg2.DatabaseError) as e:
         logg.logging.error(str(e))
+    finally:
+        con.close()
 
 
-def insertNewsIntoTable(channel, con):
+def insertNewsIntoTable(channel):
     '''
     1. fill table with news
     2. convert date into timestamp
-    3. create folder with cache images in loop
     '''
+    news = list()
+
     for index, item in enumerate(channel.entries):
 
         description = getDescription(item.description)
 
-        pub_date = getPublishedDate(item.published)
-        pub_date_stamp = time.mktime(datetime.strptime(pub_date, '%d %m %Y %H:%M:%S').timetuple())
-
+        try:
+            pub_date_stamp = time.mktime(parsedate_to_datetime(item.published).timetuple())
+        except ValueError as error:
+            logg.logging.error("ValueError: " + str(error))
+        
         media_content = checkMediaContent(item)
+        image = ''
+
         if (media_content):
-            response = requests.get(media_content)
-            image = psycopg2.Binary(response.content)
+            try:
+                response = requests.get(media_content)
+                image = psycopg2.Binary(response.content)
+            except Exception as error:
+                logg.logging.error("Exception: " + str(e))
 
         row = (html.unescape(item.title), item.link, image, description, pub_date_stamp)
-        try:
-            con.execute("INSERT INTO news VALUES (%s,%s,%s,%s,%s)", row)
-        except (Exception, psycopg2.DatabaseError) as e:
-            logg.logging.error(str(e))
+        news.append(row)
+    return news
 
-
-def isEmpty(cursor):
-    '''
-    1. check if table is empty
-    '''
-    cursor.execute("SELECT COUNT(*) FROM news")
-    exist = cursor.fetchone()
-    if not(exist[0]):
-        return True
-    else:
-        return False
-
-
-def getPublishedDate(pub_date):
-    '''
-    1. convert published date into --date argument format
-    '''
-    pub_date = ((pub_date).split(' ')[1:5])
-
-    month = {'Jan': '01', 'Feb': '02', 'Mar': '03', 'Apr': '04', 'May': '05', 'Jun': '06',
-            'Jul': '07', 'Aug': '08', 'Sep': '09', 'Oct': '10', 'Nov': '11', 'Dec': '12'}
-
-    pub_date[1] = month[pub_date[1]]
-    pub_date = ' '.join(pub_date)
-
-    return pub_date

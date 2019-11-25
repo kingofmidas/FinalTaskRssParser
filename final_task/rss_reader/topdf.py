@@ -1,10 +1,12 @@
 from xhtml2pdf import pisa
+from datetime import datetime
 import urllib.request
 import urllib.parse
 import urllib
 import html
 import cgi
 import sys
+import os
 
 
 cgi.escape = html.escape
@@ -23,7 +25,7 @@ def splithost_polyfill(url):
     return netloc, path
 
 
-def convertHtmlToPdf(sourceHtml, outputFilename):
+def convertHtmlToPdf(html_document, pdf_path):
     '''
     1. replace splithost with custom function splithost_polyfill cause splithost was removed
     from python 3.8
@@ -34,8 +36,14 @@ def convertHtmlToPdf(sourceHtml, outputFilename):
     urllib.splithost = splithost_polyfill
     urllib.request.splithost = splithost_polyfill
 
-    with open(outputFilename, "w+b") as resultFile:
+    if not os.path.exists(pdf_path):
+        os.makedirs(pdf_path)
+    time_name = datetime.strftime(datetime.now(), "%H%M%S")
+    file_name = 'NewsFeed' + '-' + time_name + '.pdf'
+    pdf_file = os.path.join(pdf_path, file_name)
+
+    with open(pdf_file, "w+b") as resultFile:
         pisaStatus = pisa.CreatePDF(
-                sourceHtml,
+                html_document,
                 dest=resultFile)
-        return pisaStatus.err
+    return file_name

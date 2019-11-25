@@ -22,9 +22,9 @@ def main(version):
         requests.get('http://127.0.0.1:5000/verbose/')
 
     if(args.colorize):
-        color = colored.fg(0)+colored.bg(220)
+        color = [colored.fg(150), colored.fg(50), colored.fg(189)]
     else:
-        color = colored.attr('reset')
+        color = [colored.attr('reset'), colored.attr('reset'), colored.attr('reset')]
 
     params = {'limit':args.limit, 'tojson': args.json,
     'tohtml':args.tohtml, 'topdf':args.topdf, 'color':color}
@@ -103,6 +103,7 @@ def checkConnection(source):
 
 
 if __name__ == "__main__":
+    # Check connection to server
     try:
         version = (requests.get('http://127.0.0.1:5000/version/')).text
         main(version)

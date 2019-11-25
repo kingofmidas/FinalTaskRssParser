@@ -1,14 +1,12 @@
 from dominate.tags import div, h2, img, p, link
-from contextlib import closing
 from datetime import datetime
 import dominate
 import psycopg2
 import base64
 import time
 import json
-import os
 
-from . import logg, converter, news_parser
+from . import logg, converter, news_parser, topdf
 
 
 def dateToStamp(arg_date):
@@ -20,7 +18,7 @@ def dateToStamp(arg_date):
     return arg_date
 
 
-def getCache(limit, tojson, html_path, pdf_path, color, arg_date):
+def getCacheFromDB(arg_date):
     '''
     1. connect to database
     2. select from table news with published date equals --date
@@ -28,31 +26,39 @@ def getCache(limit, tojson, html_path, pdf_path, color, arg_date):
     3. or print news in stdout
     '''
     try:
-        with closing(psycopg2.connect(database="postgres",user='postgres',password='rssreader',host='db',port='5432')) as con:
+        with psycopg2.connect(database="postgres",user='postgres',password='rssreader',host='localhost',port='5432') as con:
             with con.cursor() as cur:
-                cur.execute('''SELECT title, link, image, description FROM news WHERE pub_date_stamp >= %s and pub_date_stamp < %s''',
+                cur.execute('''SELECT title, link, image, description FROM news WHERE           pub_date_stamp >= %s and pub_date_stamp < %s''',
                             (dateToStamp(arg_date), dateToStamp(int(arg_date) + 1)))
 
                 records = cur.fetchall()
-                if (html_path or pdf_path):
-                    return createHtmlStructure(records, limit, html_path, pdf_path)
-                else:
-                    return getNewsFromDB(records, limit, tojson, color)
-
+                return records
     except psycopg2.ProgrammingError as e:
         print("psycopg2.ProgrammingError: " + str(e))
         logg.logging.error(str(e))
+    finally:
+        con.close()
 
 
-def getNewsFromDB(records, limit, tojson, color):
+def collectNewsFromDB(limit, tojson, color, arg_date):
     '''
     1. create list for news
     2. collect all cache news from db in list
     '''
+    records = getCacheFromDB(arg_date)
+
     news = list()
+    news.append(color[0] + 'Cache News: ')
+
     for index, row in enumerate(records):
         if(limit and index == limit):
             break
+
+        if(index%2==0):
+            news.append(color[1])
+        else:
+            news.append(color[2])
+        
         if (tojson):
             json_news = {
             'Title: ': row[0],
@@ -62,18 +68,20 @@ def getNewsFromDB(records, limit, tojson, color):
                 json_news['Description'] = row[3]
             news.append(json.dumps(json_news))
         else:
-            news.append(color + "\nTitle: " + row[0])
+            news.append("\nTitle: " + row[0])
             news.append("\nLink: " + row[1] + '\n')
             if (row[3]):
-                news.append("Description: " + row[3] + '\n')
+                news.append(color[0] + "Description: " + row[3] + '\n')
     return news
 
 
-def createHtmlStructure(records, limit, html_path, pdf_path):
+def createHtmlFromDB(limit, html_path, pdf_path, arg_date):
     '''
     1. in loop create html structure
     2. create html document or convert html structure into pdf
     '''
+    records = getCacheFromDB(arg_date)
+
     html_document = dominate.document(title="HTML document")
         
     for index, row in enumerate(records):
@@ -91,4 +99,4 @@ def createHtmlStructure(records, limit, html_path, pdf_path):
     if (html_path):
         return str(html_document)
     elif (pdf_path):
-        return converter.intoPDF(html_document, pdf_path)
+        return topdf.convertHtmlToPdf(str(html_document), pdf_path)

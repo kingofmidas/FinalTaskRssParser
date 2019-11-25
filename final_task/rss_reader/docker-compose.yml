@@ -13,11 +13,11 @@ services:
     env_file: 
       - ./.env.dev
     depends_on: 
-      - db
+      - localhost
     links: 
-      - db
+      - localhost
 
-  db:
+  localhost:
     image: postgres:12.1-alpine
     restart: always
     ports:

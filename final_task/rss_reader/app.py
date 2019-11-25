@@ -18,7 +18,10 @@ def getNews():
 @app.route('/getcache/')
 def getCacheNews():
     req = request.get_json()
-    news = get_cache.getCache(req['limit'], req['tojson'], req['tohtml'], req['topdf'], req['color'], req['date'])
+    if(req['tohtml'] or req['topdf']):
+        news = get_cache.createHtmlFromDB(req['limit'], req['tohtml'], req['topdf'], req['date'])
+    else:
+        news = get_cache.collectNewsFromDB(req['limit'], req['tojson'], req['color'], req['date'])
     return sendResponse(req, news)
 
 

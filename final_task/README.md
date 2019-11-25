@@ -45,9 +45,14 @@ The recommended way to install rss-reader is with pip:
 
 
 ```
-pip install rss-reader
+pip install rssreaderih
 ```
 
+or from source distribution:
+
+```
+python setup.py install
+```
 
 ## Data caching
 
@@ -75,4 +80,18 @@ Example:
 from xhtml2pdf import pisa
 
 pdf_file = pisa.CreatePDF(sourceHtmlFile)
+```
+
+## Deploying
+
+The application has a **dockerfile** for creating an application image. And **docker-compose.yml** file for linking application and database images.
+
+To deploy application use this command:
+```
+docker-compose up
+```
+
+If you made changes to the application then use command:
+```
+docker-compose up --build
 ```

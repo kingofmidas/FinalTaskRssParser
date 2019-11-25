@@ -9,13 +9,13 @@ with open(os.path.join(this_directory, 'README.md'), encoding='utf-8') as fh:
 
 
 setup(
-    name="rss-reader",
-    version=get_version(),
+    name="rss_reader",
+    version=version.VERSION,
     packages=find_packages(),
-    install_requires=['beautifulsoup4','dominate','feedparser', 'urllib3', 'xhtml2pdf', 'colored'],
+    install_requires=['argparse','beautifulsoup4','dominate','feedparser', 'urllib3', 'xhtml2pdf', 'colored', 'requests', 'psycopg2','flask'],
     author="ilya khonenko",
     author_email="honenkoi@gmail.com",
-    url="https://github.com/kingofmidas"
+    url="https://github.com/kingofmidas",
     description="This is rss-reader",
     long_description = long_description,
     long_description_content_type="text/markdown",

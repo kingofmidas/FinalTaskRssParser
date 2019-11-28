@@ -44,8 +44,7 @@ def getVersion():
 @app.route('/verbose/', methods=['GET', 'POST'])
 def setLogging():
     logg.makeVerbose()
-    return ''
 
 
 if __name__ == '__main__':
-    app.run(debug=True)
+    app.run()

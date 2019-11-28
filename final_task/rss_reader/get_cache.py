@@ -6,7 +6,8 @@ import base64
 import time
 import json
 
-from . import logg, converter, news_parser, topdf
+from . import logg, converter, news_parser, topdf, 
+from . import config
 
 
 def dateToStamp(arg_date):
@@ -25,19 +26,25 @@ def getCacheFromDB(arg_date):
     3. convert news into html or pdf if there are --tohtml or --topdf arguments
     3. or print news in stdout
     '''
+    con = None
     try:
-        with psycopg2.connect(database="postgres",user='postgres',password='rssreader',host='localhost',port='5432') as con:
+        params = config.config()
+
+        with psycopg2.connect(**params) as con:
             with con.cursor() as cur:
                 cur.execute('''SELECT title, link, image, description FROM news WHERE           pub_date_stamp >= %s and pub_date_stamp < %s''',
                             (dateToStamp(arg_date), dateToStamp(int(arg_date) + 1)))
 
                 records = cur.fetchall()
                 return records
+                
     except psycopg2.ProgrammingError as e:
         print("psycopg2.ProgrammingError: " + str(e))
         logg.logging.error(str(e))
     finally:
-        con.close()
+        if con is not None:
+            con.close()
+            logg.logging.info("Database connection closed")
 
 
 def collectNewsFromDB(limit, tojson, color, arg_date):
@@ -49,7 +56,7 @@ def collectNewsFromDB(limit, tojson, color, arg_date):
 
     news = list()
     news.append(color[0] + 'Cache News: ')
-
+    
     for index, row in enumerate(records):
         if(limit and index == limit):
             break

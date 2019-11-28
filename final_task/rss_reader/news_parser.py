@@ -11,6 +11,7 @@ import html
 import os
 
 from . import logg
+from . import config
 
 
 def checkMediaContent(item):
@@ -50,9 +51,11 @@ def cacheNews(channel):
     2. create table in database
     3. insert news into table
     '''
+    con = None
     try:
-        with psycopg2.connect(database="postgres",user='postgres',password='rssreader',
-                                    host='localhost',port='5432') as con:
+        params = config.config()
+
+        with psycopg2.connect(**params) as con:
             with con.cursor() as cur:
                 cur.execute("""CREATE TABLE IF NOT EXISTS news
                                 (title text, link text, image bytea,
@@ -63,12 +66,14 @@ def cacheNews(channel):
                 news = insertNewsIntoTable(channel)
                 cur.executemany("INSERT INTO news VALUES (%s,%s,%s,%s,%s) ON CONFLICT DO NOTHING", news)
                 con.commit()
-
                 logg.logging.info("News cached into database")
+
     except (Exception, psycopg2.DatabaseError) as e:
         logg.logging.error(str(e))
     finally:
-        con.close()
+        if con is not None:
+            con.close()
+            logg.logging.info("Database connection closed")
 
 
 def insertNewsIntoTable(channel):
